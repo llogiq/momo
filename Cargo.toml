@@ -1,0 +1,17 @@
+[package]
+authors = ["Andre Bogus <bogusandre@gmail.com>"]
+description = "A procedural macro to de-monomorphize generic methods"
+edition = "2018"
+keywords = ["monomorphization", "compiler-plugin"]
+license = "Apache-2.0"
+name = "momo"
+readme = "README.md"
+repository = "https://github.com/llogiq/momo"
+version = "0.1.0"
+
+[lib]
+proc_macro = true
+
+[dependencies]
+syn = { version = "0.15.34", features = ["extra-traits", "full", "fold", "parsing"] }
+quote = "0.6.12"
