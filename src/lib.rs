@@ -220,13 +220,14 @@ impl Fold for Conversions {
                 }
             }
         }
-        expr
+        syn::fold::fold_expr(self, expr)
     }
 }
 
 #[proc_macro_attribute]
-pub fn momo(code: TokenStream, _attr: TokenStream) -> TokenStream {
+pub fn momo(_attrs: TokenStream, code: TokenStream) -> TokenStream {
     //TODO: alternatively parse ImplItem::Method
+    let code_clone = code.clone();
     let fn_item = parse_macro_input!(code as Item);
     if let Item::Fn(ref item_fn) = fn_item {
         let inner_ident = syn::parse_str::<Ident>(&format!("_{}_inner", item_fn.ident)).unwrap();
@@ -250,9 +251,9 @@ pub fn momo(code: TokenStream, _attr: TokenStream) -> TokenStream {
         new_inner_item.block = Box::new(conversions.fold_block(
             std::mem::replace(new_inner_item.block.as_mut(), parse_quote!({}))));
         let new_inner_item = Item::Fn(new_inner_item);
-        quote!(#new_item #new_inner_item).into()
+        TokenStream::from(quote!(#new_item #new_inner_item))
     } else {
-        panic!("this is not a function");
+        code_clone
     }
 }
 
