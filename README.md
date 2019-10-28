@@ -16,3 +16,18 @@ without impairing readability.
 
 For now, the only place where we can put the `#[momo]` annotations
 is on plain functions.
+
+This new updated version usesi D. Tolnay's [watt] runtime to speed
+up the compile time, which was negatively affected with proc macro
+baggage. Rebuilding the wasm can be done with the commands:
+
+```bash
+cd wasm
+cargo build --release --target wasm32-unknown-unknown
+cp wasm/target/wasm32-unknown-unknown/release/momo.wasm ../src
+```
+
+You might need to add the  `wasm32-unknown-unknown` target to your
+Rust toolchain.
+
+[watt]: https://github.com/dtolnay/watt
