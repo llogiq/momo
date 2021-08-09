@@ -1,5 +1,3 @@
-extern crate proc_macro;
-
 use proc_macro2::TokenStream;
 use quote::quote;
 use std::collections::HashMap;
@@ -126,11 +124,12 @@ fn pat_to_expr(pat: &Pat) -> Expr {
 
 fn convert<'a>(
     inputs: &'a Punctuated<FnArg, Token![,]>,
-    ty_conversions: HashMap<Ident, Conversion<'a>>,
+    ty_conversions: &HashMap<Ident, Conversion<'a>>,
 ) -> (
     Punctuated<FnArg, Token![,]>,
     Conversions,
     Punctuated<Expr, Token![,]>,
+    bool,
 ) {
     let mut argtypes = Punctuated::new();
     let mut conversions = Conversions {
@@ -139,11 +138,13 @@ fn convert<'a>(
         as_muts: Vec::new(),
     };
     let mut argexprs = Punctuated::new();
+    let mut has_self = false;
     inputs.iter().for_each(|input| match input {
         FnArg::Receiver(..) => {
+            has_self = true;
             argtypes.push(input.clone());
-            argexprs.push(parse_quote!(self));
         }
+        // FIXME: Should tick has_self on typed receivers too.
         FnArg::Typed(PatType {
             ref pat,
             ref ty,
@@ -155,7 +156,7 @@ fn convert<'a>(
                     argtypes.push(FnArg::Typed(PatType {
                         attrs: Vec::new(),
                         pat: pat.clone(),
-                        colon_token: colon_token.clone(),
+                        colon_token: *colon_token,
                         ty: Box::new(conv.target_type()),
                     }));
                     let ident = pat_to_ident(pat);
@@ -170,11 +171,11 @@ fn convert<'a>(
                         argtypes.push(FnArg::Typed(PatType {
                             attrs: Vec::new(),
                             pat: pat.clone(),
-                            colon_token: colon_token.clone(),
+                            colon_token: *colon_token,
                             ty: Box::new(conv.target_type()),
                         }));
                         let ident = pat_to_ident(pat);
-                        conversions.add(ident, conv.clone());
+                        conversions.add(ident, *conv);
                         argexprs.push(conv.conversion_expr(pat_to_ident(pat)));
                         return;
                     }
@@ -186,7 +187,7 @@ fn convert<'a>(
             }
         },
     });
-    (argtypes, conversions, argexprs)
+    (argtypes, conversions, argexprs, has_self)
 }
 
 struct Conversions {
@@ -215,6 +216,7 @@ fn has_conversion(idents: &[Ident], expr: &Expr) -> bool {
     false
 }
 
+#[allow(clippy::collapsible_if)]
 impl Fold for Conversions {
     fn fold_expr(&mut self, expr: Expr) -> Expr {
         //TODO: Also catch `Expr::Call` with suitable paths & args
@@ -241,7 +243,6 @@ impl Fold for Conversions {
 
 #[no_mangle]
 pub extern "C" fn momo(code: TokenStream, _attr: TokenStream) -> TokenStream {
-    proc_macro2::set_wasm_panic_hook();
     //TODO: alternatively parse ImplItem::Method
     let code_clone = code.clone();
     let fn_item: Item = match syn::parse2(code) {
@@ -253,16 +254,21 @@ pub extern "C" fn momo(code: TokenStream, _attr: TokenStream) -> TokenStream {
         let inner_ident =
             syn::parse_str::<Ident>(&format!("_{}_inner", item_fn.sig.ident)).unwrap();
         let (ty_conversions, generics) = parse_generics(&item_fn.sig);
-        let (argtypes, mut conversions, argexprs) = convert(&item_fn.sig.inputs, ty_conversions);
+        let (argtypes, mut conversions, argexprs, has_self) =
+            convert(&item_fn.sig.inputs, &ty_conversions);
         let new_item = Item::Fn(ItemFn {
-            block: parse_quote!({ #inner_ident(#argexprs) }),
+            block: if has_self {
+                parse_quote!({ self.#inner_ident(#argexprs) })
+            } else {
+                parse_quote!({ #inner_ident(#argexprs) })
+            },
             ..item_fn.clone()
         });
         let mut new_inner_item = ItemFn {
             vis: Visibility::Inherited,
             sig: Signature {
                 ident: inner_ident,
-                generics: generics,
+                generics,
                 inputs: argtypes,
                 ..item_fn.sig.clone()
             },
@@ -275,6 +281,8 @@ pub extern "C" fn momo(code: TokenStream, _attr: TokenStream) -> TokenStream {
         let new_inner_item = Item::Fn(new_inner_item);
         quote!(#new_item #[inline(never)] #[allow(unused_mut)] #new_inner_item)
     } else {
+        // FIXME: Warn user about inappropriate location. proc_macro_error
+        // is a bit messy in watt.
         code_clone
     }
 }

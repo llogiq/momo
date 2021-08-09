@@ -14,5 +14,5 @@ version = "0.2.2"
 proc_macro = true
 
 [dependencies]
-watt = "0.1"
+watt = "0.4"
 
