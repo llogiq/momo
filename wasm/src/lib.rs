@@ -1,3 +1,4 @@
+//! Internal WASM implementation of momo.
 use proc_macro2::TokenStream;
 use quote::quote;
 use std::collections::HashMap;
@@ -5,6 +6,7 @@ use syn::*;
 use syn::{fold::Fold, punctuated::Punctuated};
 
 #[derive(Copy, Clone)]
+// All conversions we support.  Check references to this type for an idea how to add more.
 enum Conversion<'a> {
     Into(&'a Type),
     AsRef(&'a Type),
@@ -242,6 +244,7 @@ impl Fold for Conversions {
 }
 
 #[no_mangle]
+/// Implementation of the momo macro.
 pub extern "C" fn momo(code: TokenStream, _attr: TokenStream) -> TokenStream {
     //TODO: alternatively parse ImplItem::Method
     let code_clone = code.clone();
