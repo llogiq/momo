@@ -21,7 +21,7 @@ in code.
 
 ## Notes on watt
 
-This new updated version usesi D. Tolnay's [watt] runtime to speed
+This new updated version uses D. Tolnay's [watt] runtime to speed
 up the compile time, which was negatively affected with proc macro
 baggage.
 
