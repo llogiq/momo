@@ -3,15 +3,16 @@ authors = ["Andre Bogus <bogusandre@gmail.com>"]
 description = "A procedural macro to de-monomorphize generic methods"
 edition = "2018"
 keywords = ["monomorphization", "compiler-plugin"]
+categories = ["development-tools", "wasm", "rust-patterns"]
 license = "Apache-2.0"
 name = "momo"
 readme = "README.md"
 repository = "https://github.com/llogiq/momo"
-version = "0.2.1"
+version = "0.2.2"
 
 [lib]
 proc_macro = true
 
 [dependencies]
-watt = "0.1"
+watt = "0.4"
 

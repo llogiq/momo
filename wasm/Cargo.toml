@@ -1,13 +1,14 @@
 [package]
 authors = ["Andre Bogus <bogusandre@gmail.com>"]
-description = "A procedural macro to de-monomorphize generic methods"
+description = "A procedural macro to de-monomorphize generic methods [internal WASM implementation]"
 edition = "2018"
 keywords = ["monomorphization", "compiler-plugin"]
+categories = ["development-tools", "wasm", "rust-patterns"]
 license = "Apache-2.0"
-name = "momo"
+name = "momo-watt"
 readme = "README.md"
 repository = "https://github.com/llogiq/momo"
-version = "0.1.0"
+version = "0.2.2"
 
 [profile.release]
 opt-level = "z"
@@ -23,4 +24,4 @@ proc-macro2 = { git = "https://github.com/dtolnay/watt" }
 [dependencies]
 syn = { version = "1.0", features = ["full", "fold"] }
 quote = "1.0"
-proc-macro2 = "1.0"
+proc-macro2 = "=1.0.27"     # Temporary hack as watt is left at .27
