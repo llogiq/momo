@@ -32,7 +32,8 @@ Rebuilding the wasm can be done with the commands:
 cd wasm
 cargo build --release --target wasm32-unknown-unknown
 # If wasm-opt is unavailable, copying the file is fine.
-wasm-opt --strip-debug -Oz target/wasm32-unknown-unknown/release/momo.wasm -o ../src/momo.wasm
+wasm-opt target/wasm32-unknown-unknown/release/momo_watt.wasm -Oz \
+--strip-debug --simplify-globals --vacuum -o ../src/momo.wasm
 ```
 
 You might need to add the  `wasm32-unknown-unknown` target to your
