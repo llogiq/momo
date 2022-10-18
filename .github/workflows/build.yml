@@ -1,0 +1,52 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+
+
+env:
+  CARGO_TERM_COLOR: always
+
+job:
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure toolchain
+        run: |
+          rustup toolchain install stable --component rustfmt,clippy --no-self-update --profile minimal
+          rustup target add wasm32-unknown-unknown
+          rustup default stable
+      - name: Configure caching
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            wasm/target/
+          key: ${{ runner.os }}-build-wasm-${{ hashFiles('wasm/Cargo.toml') }}
+      - name: Build
+        run: |
+          cd wasm
+          cargo build --release --target wasm32-unknown-unknown
+      - name: fmt
+        run: |
+          cd wasm
+          cargo fmt --all --check
+      - name: clippy
+        run: |
+          cd wasm
+          cargo clippy --no-deps -- -D clippy::all
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure toolchain
+        run: |
+          rustup toolchain install stable --no-self-update --profile minimal
+          rustup default stable
+      - name: Build
+        run: cargo build
