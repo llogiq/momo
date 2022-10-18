@@ -49,7 +49,7 @@ fn parse_bounds(bounds: &Punctuated<TypeParamBound, Token![+]>) -> Option<Conver
         return None;
     }
     if let TypeParamBound::Trait(ref tb) = bounds.first().unwrap() {
-        if let Some(ref seg) = tb.path.segments.iter().last() {
+        if let Some(seg) = tb.path.segments.iter().last() {
             if let PathArguments::AngleBracketed(ref gen_args) = seg.arguments {
                 if gen_args.args.len() != 1 {
                     return None;
@@ -70,7 +70,7 @@ fn parse_bounds(bounds: &Punctuated<TypeParamBound, Token![+]>) -> Option<Conver
 }
 
 // create a map from generic type to Conversion
-fn parse_generics<'a>(decl: &'a Signature) -> (HashMap<Ident, Conversion<'a>>, Generics) {
+fn parse_generics(decl: &Signature) -> (HashMap<Ident, Conversion<'_>>, Generics) {
     let mut ty_conversions = HashMap::new();
     let mut params = Punctuated::new();
     for gp in decl.generics.params.iter() {
@@ -164,7 +164,6 @@ fn convert<'a>(
                     let ident = pat_to_ident(pat);
                     conversions.add(ident.clone(), conv);
                     argexprs.push(conv.conversion_expr(ident));
-                    return;
                 }
             }
             Type::Path(..) => {
@@ -179,7 +178,6 @@ fn convert<'a>(
                         let ident = pat_to_ident(pat);
                         conversions.add(ident, *conv);
                         argexprs.push(conv.conversion_expr(pat_to_ident(pat)));
-                        return;
                     }
                 }
             }
