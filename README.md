@@ -30,7 +30,13 @@ Rebuilding the wasm can be done with the commands:
 
 ```bash
 cd wasm
-cargo build --release --target wasm32-unknown-unknown
+
+cargo +nightly build \
+    --release \
+    --target wasm32-unknown-unknown \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort
+
 # If wasm-opt is unavailable, copying the file is fine.
 wasm-opt target/wasm32-unknown-unknown/release/momo_watt.wasm -Oz \
 --strip-debug --simplify-globals --vacuum -o ../src/momo.wasm
