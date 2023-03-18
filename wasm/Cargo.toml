@@ -24,6 +24,6 @@ crate-type = ["cdylib", "rlib"]
 proc-macro2 = { git = "https://github.com/dtolnay/watt" }
 
 [dependencies]
-syn = { version = "1.0", features = ["full", "fold"] }
+syn = { version = "2.0", features = ["full", "fold"] }
 quote = "1.0"
 proc-macro2 = "1.0"
