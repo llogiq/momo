@@ -19,7 +19,7 @@ jobs:
           rustup target add wasm32-unknown-unknown
           rustup default stable
       - name: Configure caching
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
