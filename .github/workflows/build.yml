@@ -12,7 +12,7 @@ jobs:
   build-wasm:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Configure toolchain
         run: |
           rustup toolchain install stable --component rustfmt,clippy --no-self-update --profile minimal
@@ -43,7 +43,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Configure toolchain
         run: |
           rustup toolchain install stable --no-self-update --profile minimal
