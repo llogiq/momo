@@ -3,11 +3,12 @@
 [![badge](https://docs.rs/momo/badge.svg)](https://docs.rs/momo)
 
 This is a `proc_macro` crate to help keeping the code footprint of
-generic methods in check. Often, generics are used in libraries to
-improve ergonomics.  However,  this has a cost in compile time and
-binary size.  Optimally,  one creates a  small shell function that
-does the generic conversions and then calls an inner function, but
-that makes the code less readable.
+generic methods in check.  Often, generics are only needed for
+ergonomics: Library code might want to present an easy-to-use generic
+interface that will automate some type conversions. However,  this has
+a cost in compile time and binary size.  Optimally, one creates a
+small shell function that does the generic conversions and then calls
+an inner function, butthat makes the code less readable.
 
 Add a `#[momo]`  annotation from this crate to split your function
 into an outer conversion and a private inner function.  In return,
@@ -18,6 +19,8 @@ Conversions currently supported are `Into` (`.into()`), `AsRef`
 (`.as_ref()`), and `AsMut` (`.as_mut()`).  See `enum Conversions`
 in code.
 
+Check out [my blog post](https://llogiq.github.io/2019/05/18/momo.html)
+for a bit more information on why this crate exists.
 
 ## Notes on watt
 
